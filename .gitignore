@@ -1,0 +1,39 @@
+# macOS
+.DS_Store
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+
+# Model checkpoints
+*.pth
+*.pt
+*.ckpt
+
+# Generated arrays and datasets
+*.npy
+*.npz
+
+# Data directories
+data/
+dataset/
+UBFC-Phys/
+processed_data/
+
+# Experiment outputs
+results/
+outputs/
+logs/
+checkpoints/
