@@ -170,90 +170,32 @@ The experiments were implemented using Python and PyTorch.
 
 The tested software environment included the following principal packages:
 
-```text
-Python              : Use the version reported by `python --version`
-
+Python              : 3.9.23
 PyTorch             : 2.5.1
 TorchVision         : 0.20.1
 TorchAudio          : 2.5.1
-
 NumPy               : 1.26.4
 Pandas              : 2.2.2
 SciPy               : 1.13.1
 Scikit-learn        : 1.4.2
-
 OpenCV-Python       : 4.9.0.80
 dlib                : 19.24.0
 NeuroKit2           : 0.2.7
-
 Matplotlib          : 3.8.4
 Seaborn             : 0.13.2
 Pillow              : 11.1.0
 PyWavelets          : 1.6.0
-
 tqdm                : 4.66.4
 h5py                : 3.10.0
 PyYAML              : 6.0.2
 joblib              : 1.5.1
-```
+
 
 The reported experiments were executed on an:
 
-```text
 NVIDIA GeForce RTX 3060
 12 GB VRAM
-```
 
-To inspect the exact PyTorch, CUDA, cuDNN, and GPU configuration on the current system:
-
-```bash
-python -c "import torch; print('PyTorch:', torch.__version__); print('CUDA:', torch.version.cuda); print('cuDNN:', torch.backends.cudnn.version()); print('GPU:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU')"
-```
-
-To inspect the Python version:
-
-```bash
-python --version
-```
-
-To display all installed Python packages:
-
-```bash
-pip list
-```
-
-To create a complete snapshot of the active environment:
-
-```bash
-pip freeze > requirements_full.txt
-```
-
----
-
- Installation
-
-Create and activate a Python environment before installing the dependencies.
-
-Example using Conda:
-
-```bash
-conda create -n mscamnet python=3.9
-conda activate mscamnet
-```
-
-Install the required dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-For exact environment inspection, the complete package snapshot can be stored in:
-
-```text
-requirements_full.txt
-```
-
----
 
  Stage 1: Spatiotemporal Contrastive Pre-training
 
@@ -267,7 +209,6 @@ No color jitter, hue modification, saturation perturbation, frame-wise brightnes
 
 Main settings:
 
-```text
 Optimizer                    : Adam
 Learning rate                : 3e-4
 Physical batch size          : 16
@@ -286,13 +227,11 @@ The Stage 1 objective combines:
 
 Run Stage 1 using:
 
-```bash
 python stage1/train_stage1.py \
   --development-dir "/path/to/processed_data/development" \
   --output-dir "/path/to/results/stage1" \
   --num-workers 4
-```
-
+  
 The Stage 1 projection head is used only during contrastive pre-training.
 
 Only the trained encoder is transferred to Stage 2.
@@ -307,12 +246,10 @@ The projection head from Stage 1 is discarded.
 
 Hierarchical features are extracted from:
 
-```text
 P5
 P6
 P7
 Pout
-```
 
 Each hierarchy is processed by a dedicated Memory-Attention module.
 
@@ -326,7 +263,7 @@ The unified representation is then used for:
 
 Main optimization settings:
 
-```text
+
 Optimizer                    : AdamW
 Base learning rate           : 5e-5
 Encoder learning rate        : 0.05 x base LR
@@ -341,7 +278,6 @@ Checkpoint criterion         : validation HR MAE
 
 The Stage 2 objective is:
 
-```text
 LStage2 =
 alpha_epoch 
 (
@@ -350,28 +286,23 @@ alpha_epoch
   + 2.0  Lsignal
   + 0.1  Laux
 )
-```
 
 where:
 
-```text
+
 alpha_epoch = min(1, epoch / 10)
-```
 
 The first ten epochs therefore provide a progressive warm-up of the physiological objectives.
 
 Run Stage 2 using:
 
-```bash
 python stage2/train_stage2.py \
   --development-dir "/path/to/processed_data/development" \
   --stage1-dir "/path/to/MS-CAM-Net/stage1" \
   --stage1-weights "/path/to/stage1_encoder_checkpoint.pth" \
   --output-dir "/path/to/results/stage2" \
   --num-folds 10
-```
 
----
 
  Stage 2 Physiological Evaluation
 
@@ -402,7 +333,6 @@ RMSSD-from-rPPG Pearson correlation
 
 The session-level physiological analysis uses:
 
-```text
 Window length         : 20 s
 Window overlap        : 50%
 Reconstruction        : weighted overlap-add
@@ -412,7 +342,6 @@ HR/HRV aggregation    : median within each complete session
 
 Example:
 
-```bash
 python stage2/evaluate_stage2_physiology.py \
   --development-dir "/path/to/processed_data/development" \
   --stage1-dir "/path/to/MS-CAM-Net/stage1" \
@@ -439,11 +368,10 @@ The refined temporal representation has 64 channels.
 
 Dual-statistic temporal pooling is applied using:
 
-```text
+
 Global Average Pooling
 +
 Global Maximum Pooling
-```
 
 The two 64-dimensional descriptors are concatenated:
 
@@ -560,7 +488,6 @@ python stage3/train_stage3.py \
   --final-train
 ```
 
----
 
  Final Subject-Independent Test Evaluation
 
@@ -627,100 +554,3 @@ To avoid subject-level information leakage:
 4. The fixed test set must be evaluated only after the final model checkpoint has been selected.
 5. The original fixed test evaluation and repeated random subject-exclusive evaluations must be treated as separate experimental protocols.
 6. The UBFC-Phys dataset itself is not redistributed by this repository.
-
----
-
- Installed Environment Snapshot
-
-The development environment contained the following installed packages:
-
-```text
-asttokens==3.0.0
-Brotli==1.0.9
-certifi==2025.6.15
-charset-normalizer==3.3.2
-comm==0.2.2
-contourpy==1.3.0
-cycler==0.12.1
-debugpy==1.8.14
-decorator==5.2.1
-dlib==19.24.0
-et_xmlfile==2.0.0
-exceptiongroup==1.3.0
-executing==2.2.0
-filelock==3.17.0
-fonttools==4.58.4
-gmpy2==2.2.1
-GPUtil==1.4.0
-h5py==3.10.0
-idna==3.7
-imageio==2.37.0
-importlib_metadata==8.7.0
-importlib_resources==6.4.0
-ipykernel==6.29.5
-ipython==8.18.1
-jedi==0.19.2
-Jinja2==3.1.6
-joblib==1.5.1
-jupyter_client==8.6.3
-jupyter_core==5.8.1
-kiwisolver==1.4.7
-MarkupSafe==3.0.2
-matplotlib==3.8.4
-matplotlib-inline==0.1.7
-mkl_fft==1.3.11
-mkl_random==1.2.8
-mkl-service==2.4.0
-mpmath==1.3.0
-nest-asyncio==1.6.0
-networkx==3.2.1
-neurokit2==0.2.7
-ninja==1.13.0
-numpy==1.26.4
-opencv-python==4.9.0.80
-openpyxl==3.1.5
-packaging==26.2
-pandas==2.2.2
-parso==0.8.4
-pexpect==4.9.0
-pillow==11.1.0
-pip==26.0.1
-platformdirs==4.3.8
-prompt_toolkit==3.0.51
-psutil==7.0.0
-ptyprocess==0.7.0
-pure_eval==0.2.3
-Pygments==2.19.1
-pyparsing==3.2.3
-PySocks==1.7.1
-python-dateutil==2.9.0.post0
-pytz==2025.2
-PyWavelets==1.6.0
-PyYAML==6.0.2
-pyzmq==27.0.0
-requests==2.32.4
-scikit-learn==1.4.2
-scipy==1.13.1
-seaborn==0.13.2
-setuptools==82.0.1
-six==1.17.0
-stack-data==0.6.3
-sympy==1.13.3
-threadpoolctl==3.6.0
-torch==2.5.1
-torchaudio==2.5.1
-torchvision==0.20.1
-tornado==6.5.1
-tqdm==4.66.4
-traitlets==5.14.3
-triton==3.1.0
-typing_extensions==4.12.2
-tzdata==2025.2
-urllib3==2.3.0
-wcwidth==0.2.13
-wheel==0.47.0
-zipp==3.23.0
-```
-
-For a cleaner reproducibility setup, users are encouraged to install the project-specific dependencies from `requirements.txt` rather than manually reproducing every package in this complete environment snapshot.
-
